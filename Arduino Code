@@ -1,0 +1,111 @@
+#include <Ultrasonic.h>
+
+// Motor pins
+#define enA 10
+#define in1 9  
+#define in2 8  
+#define in3 7  
+#define in4 6  
+#define enB 5  
+
+// IR sensor pins
+#define IR_R A0
+#define IR_L A1
+
+// Ultrasonic pins
+#define trigPin 3
+#define echoPin 2
+
+Ultrasonic ultrasonic(trigPin, echoPin);
+
+void setup() 
+{ 
+  Serial.begin(9600);
+
+  pinMode(IR_R, INPUT);
+  pinMode(IR_L, INPUT);
+
+  pinMode(enA, OUTPUT); 
+  pinMode(in1, OUTPUT); 
+  pinMode(in2, OUTPUT);  
+  pinMode(in3, OUTPUT);    
+  pinMode(in4, OUTPUT); 
+  pinMode(enB, OUTPUT);  
+}
+
+void loop() 
+{
+  int IRR = digitalRead(IR_R);
+  int IRL = digitalRead(IR_L);
+  int distance = ultrasonic.read();
+
+  Serial.print("Distance in CM: ");
+  Serial.println(distance);
+  Serial.print("IR R: ");
+  Serial.println(IRR);
+  Serial.print("IR L: ");
+  Serial.println(IRL);
+
+  if (distance <= 20) 
+{
+    stopMotors(); // Stop if obstacle distance is less than or equal at 20cm
+  }
+  else if (IRR == 1 && IRL == 1) 
+{
+    moveForward();
+  }
+  else if (IRR == 0 && IRL == 1) 
+{
+    turnLeft();
+  }
+  else if (IRR == 1 && IRL == 0) 
+{
+    turnRight();
+  }
+  else if (IRR == 0 && IRL == 0) 
+{
+    stopMotors();  // Line lost
+  }
+}
+
+// Motor Control Functions 
+
+void moveForward() 
+{
+  analogWrite(enA, 80);
+  analogWrite(enB, 80);
+  digitalWrite(in1, LOW); 
+  digitalWrite(in2, HIGH); 
+  digitalWrite(in3, HIGH); 
+  digitalWrite(in4, LOW); 
+}
+
+void turnLeft() 
+{
+  analogWrite(enA, 0);
+  analogWrite(enB, 80);
+  digitalWrite(in1, LOW); 
+  digitalWrite(in2, LOW);  
+  digitalWrite(in3, HIGH); 
+  digitalWrite(in4, LOW); 
+}
+
+void turnRight() 
+{
+  analogWrite(enA, 80);
+  analogWrite(enB, 0);
+  digitalWrite(in1, LOW); 
+  digitalWrite(in2, HIGH); 
+  digitalWrite(in3, LOW);  
+  digitalWrite(in4, LOW); 
+}
+
+void stopMotors() 
+{
+  analogWrite(enA, 0);
+  analogWrite(enB, 0);
+  digitalWrite(in1, LOW); 
+  digitalWrite(in2, LOW); 
+  digitalWrite(in3, LOW); 
+  digitalWrite(in4, LOW); 
+}
